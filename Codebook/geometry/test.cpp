@@ -1,3 +1,6 @@
+#include <bits/stdc++.h>
+using namespace std;
+
 const double eps = 1e-10;
 
 int dcmp(double x) {
@@ -53,4 +56,38 @@ bool parallel(Line l1, Line l2) {return same(l1.a * l2.b, l1.b * l2.a);}
 P line_intersection(Line l1, Line l2) {
 	return P(-l1.b * l2.c + l1.c * l2.b, l1.a * l2.c - l1.c * l2.a) / (-l1.a * l2.b + l1.b * l2.a);	
 }
-
+double Area(vector<P> &p) {
+	double res = 0;
+	for(int i = 1; i < (int)p.size() - 1; i++) 
+		res += (p[i] - p[0]) ^ (p[i + 1] - p[0]);
+	return res * 0.5;
+}
+bool cmp(P a, P b) {return same(a.y, b.y) ? a.x < b.x : a.y < b.y;}
+vector<P> convexhull(vector<P> ps) {
+	vector<P> p;
+	for(int i = 0; i < (int)ps.size(); i++) {
+		while(p.size() >= 2 && ((ps[i] - p[p.size() - 2]) ^ (p[p.size() - 1] - p[p.size() - 2])) > 0) p.pop_back();
+		p.push_back(ps[i]);
+	}
+	int t = (int)p.size();
+	for(int i = (int)ps.size() - 2; i >= 0; i--) {
+		while(p.size() > t && ((ps[i] - p[p.size() - 2]) ^ (p[p.size() - 1] - p[p.size() - 2])) > 0) p.pop_back();
+		p.push_back(ps[i]);
+	}
+	p.pop_back();
+	return p;
+}
+int main() {
+	ios_base::sync_with_stdio(false); cin.tie(0);
+	int n; cin >> n;
+	vector<P> vec;
+	for(int i = 0; i < n; i++) {
+		P p; cin >> p.x >> p.y;
+		vec.push_back(p);
+	}
+	sort(vec.begin(), vec.end(), cmp);
+	vector<P> convex = convexhull(vec);	
+	cout << int(convex.size()) << '\n';
+	for(P p : convex) cout << int(p.x) << ' ' << int(p.y) << '\n';
+	return 0;
+}
