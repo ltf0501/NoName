@@ -1,4 +1,4 @@
-int point_in_polygon(vector<Point> ps, Point p) {
+int point_in_polygon(vector<P> ps, P p) {
 	int cnt = 0;
 	int wn = 0;
 	for(int i = 0; i < (int)ps.size(); i++) {
