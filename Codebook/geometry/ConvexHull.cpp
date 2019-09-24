@@ -1,13 +1,14 @@
-vector<Point> convexhull(Vector<Point> ps) {
-	sort(ps.begin(), ps.end());
-	vector<Point> res;
-	int m;
+vector<P> convexhull(vector<P> ps) {
+	vector<P> p;
 	for(int i = 0; i < (int)ps.size(); i++) {
-		while((m = (int)res.size() > 1) && (res[m - 1] - res[m - 2]) ^ (ps[i] - res[m - 2]) <= 0) res.pop_back();
-		res.push_back(ps[i]);
+		while(p.size() >= 2 && ((ps[i] - p[p.size() - 2]) ^ (p[p.size() - 1] - p[p.size() - 2])) > 0) p.pop_back();
+		p.push_back(ps[i]);
 	}
-	int k = (int)res.size();
+	int t = (int)p.size();
 	for(int i = (int)ps.size() - 2; i >= 0; i--) {
-		while((m = (int)res.size()))
+		while(p.size() > t && ((ps[i] - p[p.size() - 2]) ^ (p[p.size() - 1] - p[p.size() - 2])) > 0) p.pop_back();
+		p.push_back(ps[i]);
 	}
+	p.pop_back();
+	return p;
 }

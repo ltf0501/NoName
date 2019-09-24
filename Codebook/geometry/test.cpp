@@ -38,56 +38,45 @@ struct Line {
 	double get_ratio(P p) {return (p - pa) * (pb - pa) / ((pb - pa).abs() * (pb - pa).abs());}
 	P dis(P p) {return ((pb - pa) ^ (p - pa)) / (pb - pa).abs();} // directed distance
 };
+bool onsegment(P p, P a, P b) {
+	return dcmp((a - p) ^ (b - p)) == 0 && dcmp((a - p) * (b - p)) <= 0;
+}
 
 struct Circle {
 	P c;
 	double r;
 	Circle(P c, double r = 0): c(c), r(r) {}
 };
-bool onsegment(P p, P a, P b) {
-	return dcmp((a - p) ^ (b - p)) == 0 && dcmp((a - p) * (b - p)) <= 0;
-}
-bool segment_intersection(P p1, P p2, P p3, P p4) { // end points are not allowed
-	return dcmp((p2 - p1) ^ (p3 - p1)) * dcmp((p2 - p1) ^ (p4 - p1)) < 0 
-		&& dcmp((p4 - p3) ^ (p1 - p3)) * dcmp((p4 - p3) ^ (p2 - p3)) < 0;
-	
-}
-bool parallel(Line l1, Line l2) {return same(l1.a * l2.b, l1.b * l2.a);}
-P line_intersection(Line l1, Line l2) {
-	return P(-l1.b * l2.c + l1.c * l2.b, l1.a * l2.c - l1.c * l2.a) / (-l1.a * l2.b + l1.b * l2.a);	
-}
-double Area(vector<P> &p) {
-	double res = 0;
-	for(int i = 1; i < (int)p.size() - 1; i++) 
-		res += (p[i] - p[0]) ^ (p[i + 1] - p[0]);
-	return res * 0.5;
-}
-bool cmp(P a, P b) {return same(a.y, b.y) ? a.x < b.x : a.y < b.y;}
-vector<P> convexhull(vector<P> ps) {
-	vector<P> p;
+int point_in_polygon(vector<P> ps, P p) {
+	int cnt = 0;
+	int wn = 0;
 	for(int i = 0; i < (int)ps.size(); i++) {
-		while(p.size() >= 2 && ((ps[i] - p[p.size() - 2]) ^ (p[p.size() - 1] - p[p.size() - 2])) > 0) p.pop_back();
-		p.push_back(ps[i]);
+		int ii = (i + 1) % (int)ps.size();
+		if(onsegment(p, ps[i], ps[ii])) return -1;
+		int k = dcmp((ps[ii] - ps[i]) ^ (p - ps[i]));
+		int d1 = dcmp(ps[i].y - p.y);
+		int d2 = dcmp(ps[ii].y - p.y);
+		if(k > 0 && d1 <= 0 && d2 > 0) wn++;
+		if(k < 0 && d2 <= 0 && d1 > 0) wn--;
 	}
-	int t = (int)p.size();
-	for(int i = (int)ps.size() - 2; i >= 0; i--) {
-		while(p.size() > t && ((ps[i] - p[p.size() - 2]) ^ (p[p.size() - 1] - p[p.size() - 2])) > 0) p.pop_back();
-		p.push_back(ps[i]);
-	}
-	p.pop_back();
-	return p;
+	if(wn != 0) return 1; // inside
+	return 0; // outside
 }
 int main() {
 	ios_base::sync_with_stdio(false); cin.tie(0);
 	int n; cin >> n;
-	vector<P> vec;
+	vector<P> ps;
 	for(int i = 0; i < n; i++) {
 		P p; cin >> p.x >> p.y;
-		vec.push_back(p);
+		ps.push_back(p);
 	}
-	sort(vec.begin(), vec.end(), cmp);
-	vector<P> convex = convexhull(vec);	
-	cout << int(convex.size()) << '\n';
-	for(P p : convex) cout << int(p.x) << ' ' << int(p.y) << '\n';
+	int q; cin >> q;
+	while(q--) {
+		P p; cin >> p.x >> p.y;
+		int res = point_in_polygon(ps, p);
+		if(res == -1) cout << 1 << '\n';
+		else if(res == 1) cout << 2 << '\n';
+		else cout << 0 << '\n';
+	}
 	return 0;
 }
