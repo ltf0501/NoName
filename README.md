@@ -7,6 +7,7 @@ Team members: ltf0501, WillyPillow, iaNTU
 | Contest                          | Date          | Rank | Solved/Total | Penalty | A | B | C | D | E | F | G | H | I | J | K | L | M |
 |----------------------------------|:-------------:|:----:|:------------:|:-------:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
 | 2019 NTU Japan Ranking                         | 2019/09/07          | 3 | 7/10 | 900 | 1/42 | 0/79 | 5/198 | 0/200 | 0/73 | 1/58 | 1/- | -/- | 0/110 | -/- | x | x | x |
+| 2019 NTU Ranking                         | 2019/09/28          | 5 | 4/10 | 536 | 1/176 | 1/22 | -/- | 2/- | 0/266 | -/- | -/- | -/- | 0/52 | -/- | x | x | x |
 
 ## Training
 (Ranking is calculated based on onsite contestants)
