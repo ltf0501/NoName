@@ -1,57 +1,55 @@
-#include <stdio.h>
-#include <vector>
+#include <bits/stdc++.h>
 using namespace std;
-#define PB push_back
-const int N=1e5+10;
-bool vis[N],ok[N];
-double sz[N];
-int hei[N];
-vector<int> graph[N],ng[N];
-int max(int a,int b){return a>b?a:b;}
-void dfs(int pos){
-	vis[pos]=true;
-	hei[pos]=0;
-	sz[pos]=1;
-	for(int i:graph[pos])if(!vis[i])dfs(i);
-	for(int i:graph[pos])sz[pos]+=sz[i];
-	for(int i:graph[pos])hei[pos]=max(hei[pos],hei[i]);
-	hei[pos]++;
-	return ;
+ 
+int vis[100001], perm[100001], cnt[100001];
+vector<int> g[100001];
+ 
+int dfs(int x) {
+	if (vis[x]) return vis[x];
+	vis[x] = perm[x];
+	for (int y : g[x]) vis[x] = min(vis[x], dfs(y));
+	return vis[x];
 }
-void solve(int n){
-	int pos=1,ans=0,m,l,r,temp=0,npos=1;
-	scanf("%d",&m);
-	for(int i=1;i<=n;i++)graph[i].clear();
-	for(int i=1;i<=n;i++)ng[i].clear();
-	while(m--){
-		scanf("%d%d",&l,&r);
-		graph[l].PB(r);
-		ng[r].PB(l);
+ 
+void dfsSize(int x) {
+	vis[x] = true;
+	for (int y : g[x]) {
+		if (!vis[y]) dfsSize(y);
 	}
-	for(int i=1;i<=n;i++)vis[i]=false;
-	for(int i=1;i<=n;i++)if(!vis[i])dfs(i);
-	for(int i=2;i<=n;i++)if(sz[i]>sz[pos])pos=i;
-	for(int i=1;i<=n;i++)vis[i]=false;
-	dfs(pos);
-	for(int i=1;i<=n;i++)if(vis[i])ans++;
-	for(int i=1;i<=n;i++)if(hei[i]>hei[npos])npos=i;
-	for(int i=1;i<=n;i++)vis[i]=false;
-	dfs(npos);
-	temp=0;
-	for(int i=1;i<=n;i++)if(vis[i])temp++;
-	if(temp>ans){
-		ans=temp;
-		pos=npos;
-	}
-	printf("%d %d\n",pos,ans);
 }
-int main(){
-    freopen("journey.in","r",stdin);
-    freopen("journey.out","w",stdout);
-	int n;
-	while(true){
-		scanf("%d",&n);
-		if(n==0)break;
-		else solve(n);
+ 
+int main() {
+	freopen("journey.in", "r", stdin);
+	freopen("journey.out", "w", stdout);
+	cin.tie(nullptr), ios_base::sync_with_stdio(false);
+	mt19937 rng;
+	for (int n, m; cin >> n && n && cin >> m; ) {
+		for (int i = 1; i <= n; i++) g[i].clear(), cnt[i] = 0;
+		while (m--) {
+			int u, v; cin >> u >> v;
+			g[u].push_back(v);
+		}
+		iota(perm + 1, perm + 1 + n, 1);
+		for (int tries = 0; tries < 50; tries++) {
+			shuffle(perm + 1, perm + 1 + n, rng);
+			pair<int, int> res = {n + 1, -1};
+			for (int i = 1; i <= n; i++) vis[i] = 0;
+			for (int i = 1; i <= n; i++) {
+				if (!vis[i]) res = min(res, {dfs(i), i});
+			}
+			for (int i = 1; i <= n; i++) cnt[i] += vis[i];
+		}
+		vector<pair<int, int>> vec;
+		for (int i = 1; i <= n; i++) vec.emplace_back(cnt[i], i);
+		sort(vec.begin(), vec.end());
+		if (vec.size() > 50) vec.resize(50);
+		pair<int, int> ans{};
+		for (auto res : vec) {
+			for (int i = 1; i <= n; i++) vis[i] = 0;
+			dfsSize(res.second);
+			int sz = accumulate(vis + 1, vis + 1 + n, 0);
+			ans = max(ans, {sz, res.second});
+		}
+		cout << ans.second << ' ' << ans.first << '\n';
 	}
 }
