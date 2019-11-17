@@ -1,4 +1,4 @@
-nclude <bits/stdc++.h>
+#include <bits/stdc++.h>
 using namespace std;
  
 constexpr int kN = 2019;
