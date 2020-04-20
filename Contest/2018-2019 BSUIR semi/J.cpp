@@ -1,67 +1,56 @@
-#include <bits/stdc++.h>
-using namespace std;
-
-using D = double;
-
-struct Person {
-	int taime;
-	D down, up;
-} p[500010];
-
-D dp[500010][3], cc[610][610], eq[500010][101], ge[500010][101];
-bool vis[500010][101], vis_eq[500010][101];
-
-D C(int n, int m) {
-	if (m == 0 || m == n) return 1;
-	if (cc[n][m]) return cc[n][m];
-	return cc[n][m] = C(n, m - 1) * (n - m + 1) / m;
-}
-
-// P(t_i = k)
-D CalcProbEqConst(int i, int k) {
-	if (k > 100 || k < 0) return 0;
-	if (vis_eq[i][k]) return eq[i][k];
-	vis_eq[i][k] = true;
-	D ans = 0;
-	for (int a = 0; a <= k; a++) {
-		if (0 <= a && a <= 50 && 0 <= k - a && k - a <= 50) {
-			ans += C(50, a) * C(50, k - a) * pow(p[i].down, a) * pow(1 - p[i].down, 50 - a) * pow(p[i].up, k - a) * pow(1 - p[i].up, 50 - k + a);
-		}
-	}
-	return eq[i][k] = ans;
-}
+#include <stdio.h>
+constexpr int kN = int(5E4 + 10);
 
 
-// P(t_i >= k)
-D CalcProbGeConst(int i, int k) {
-	if (k > 100) return 0;
-	if (k < 0) return 1;
-	if (vis[i][k]) return ge[i][k];
-	vis[i][k] = true;
-	return ge[i][k] = CalcProbEqConst(i, k) + CalcProbGeConst(i, k + 1);
-}
+int t[kN];
+double d[kN], u[kN], p[kN][101], tp[101][2], s[kN][101], dp[3][2];
 
 int main() {
-	cin.tie(0);
-	ios_base::sync_with_stdio(0);
-	int n; cin >> n;
-	for (int i = 0; i < n; i++) {
-		cin >> p[i].taime >> p[i].down >> p[i].up;
-		p[i].down = 1 - p[i].down;
-		p[i].up = 1 - p[i].up;
-	}
-	D ans = 0;
-	for (int t = p[0].taime; t <= p[0].taime + 100; t++) {
-		dp[0][0] = 1;
-		for (int i = 1; i < n; i++) {
-			D w = CalcProbGeConst(i, t - p[i].taime);
-			//cerr << t - p[i].taime << ' ' << w << '\n';
-			dp[i][0] = dp[i - 1][0] * w;
-			dp[i][1] = dp[i - 1][1] * w + dp[i - 1][0] * (1 - w);
-			dp[i][2] = dp[i - 1][2] * w + dp[i - 1][1] * (1 - w);
+	int n;
+	double ans = 0;
+	bool f = true;
+	scanf("%d", &n);
+	for (int i = 1; i <= n; i++) scanf("%d%lf%lf", &t[i], &d[i], &u[i]);
+	for (int i = 1; i <= n; i++) {
+		t[i] *= 5;
+		for (int j = 1; j <= 20; j++) tp[j][!f] = 0;
+		tp[0][!f] = 1;
+		for (int j = 1; j <= 10; j++) {
+			tp[0][f] = tp[0][!f] * d[i];
+			for (int k = 1; k < j; k++) tp[k][f] = tp[k][!f] * d[i] + tp[k - 1][!f] * (1 - d[i]);
+			tp[j][f] = tp[j - 1][!f] * (1 - d[i]);
+			f = !f;
 		}
-		cerr << t << ' ' << dp[n - 1][0] + dp[n - 1][1] + dp[n - 1][2] << endl;
-		ans += CalcProbEqConst(0, t - p[0].taime) * (dp[n - 1][0] + dp[n - 1][1] + dp[n - 2][2]);
+		for (int j = 11; j <= 20; j++) {
+			tp[0][f] = tp[0][!f] * u[i];
+			for (int k = 1; k < j; k++) tp[k][f] = tp[k][!f] * u[i] + tp[k - 1][!f] * (1 - u[i]);
+			tp[j][f] = tp[j - 1][!f] * (1 - u[i]);
+			f = !f;
+		}
+		for (int j = 0; j <= 20; j++) p[i][j] = tp[j][!f];
+		s[i][0] = p[i][0];
+		for (int j = 1; j <= 20; j++) s[i][j] = s[i][j - 1] + p[i][j];
 	}
-	cout << ans << '\n';
+
+	for (int i = 0; i <= 20; i++) {
+		dp[0][!f] = p[1][i];
+		dp[1][!f] = dp[2][!f] = 0;
+		for (int j = 2; j <= n; j++) {
+			if (t[1] + i * 60 > t[j] + 1200) {
+				dp[0][f] = 0;
+				dp[1][f] = dp[0][!f];
+				dp[2][f] = dp[1][!f];
+			}
+			else if (t[j] >= t[1] + i * 60) f = !f;
+			else {
+				double np = s[j][(t[1] + i * 60 - t[j] + 59) / 60 - 1], nq = 1 - np;
+				dp[0][f] = dp[0][!f] * nq;
+				dp[1][f] = dp[0][!f] * np + dp[1][!f] * nq;
+				dp[2][f] = dp[1][!f] * np + dp[2][!f] * nq;
+			}
+			f = !f;
+		}
+		ans += dp[0][!f] + dp[1][!f] + dp[2][!f];
+	}
+	printf("%.20lf\n", ans);
 }
